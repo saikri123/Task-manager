@@ -3,7 +3,7 @@ import User from '../models/userModel.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-export default async function authMiddleware(re,res,next){
+export default async function authMiddleware(req,res,next){
     //Grab the authentication token from barrer header
 
     const authHeader = req.headers.authorization;
