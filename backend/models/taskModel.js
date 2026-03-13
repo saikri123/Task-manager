@@ -1,10 +1,10 @@
-import mangoose from 'mangoose'
-import { trusted } from 'mongoose'
+import mongoose from 'mongoose'
+//import { trusted } from 'mongoose'
 
-const taskSchema=new mangoose.Schema({
+const taskSchema=new mongoose.Schema({
     title:{
         type:String,
-        required:trusted
+        required:true
     },
     description:{
         type:String,
@@ -20,7 +20,7 @@ const taskSchema=new mangoose.Schema({
     
     },
     owner:{
-        type:mangoose.Schema.Types.ObjectId ,
+        type:mongoose.Schema.Types.ObjectId ,
         ref:'User',
         required:true
     },

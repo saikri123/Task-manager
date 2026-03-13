@@ -1,4 +1,4 @@
-import Task from '../models/taskModel'
+import Task from '../models/taskModel.js'
 
 //Create a New Task
 export const createTask= async(req,res)=>{
@@ -44,7 +44,7 @@ export const getTaskById=async(req,res)=>{
 }
 
 //Update a task
-export const updatetask= async (req,res)=>{
+export const updateTask= async (req,res)=>{
     try{
         const data ={...req.body}
         if(data.completed !== undefined){
