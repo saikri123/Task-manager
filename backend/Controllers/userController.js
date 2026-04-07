@@ -30,9 +30,15 @@ export async function registeruser(req,res){
          const user=await User.create({name,email,password:hashed})
 
          const token =createToken(user._id);
-         res.status(201).json({success:true,message:"User sucessfuly created"})
+         // FIX: Return token and user data (without password)
+         res.status(201).json({
+             success:true,
+             message:"User successfully created",
+             token,
+             user: { _id: user._id, name: user.name, email: user.email }
+         });
     }
-    
+
     catch(err){
         console.log(err);
         res.status(500).json({success:false,message:"Internal server error"})
@@ -49,15 +55,21 @@ export async function loginuser(req,res){
     try{
         const user =await User.findOne({email});
         if(!user)
-            return res.status(400).json({sucess:false,message:"Invalid email or password"})
+            return res.status(400).json({success:false,message:"Invalid email or password"})
 
-        const match=bcrypt.compare(password,user.password);
+        const match=await bcrypt.compare(password,user.password);
         if(!match)
             return res.status(400).json({success:false,message:"Invalid email or password"})
 
         const token = createToken(user._id);
-        res.status(200).json({success:true,message:"User logged in successfully",token});
-    } 
+        // FIX: Return token and user data (without password)
+        res.status(200).json({
+            success:true,
+            message:"User logged in successfully",
+            token,
+            user: { _id: user._id, name: user.name, email: user.email }
+        });
+    }
     catch(err){
         console.log(err);
         res.status(500).json({success:false,message:"Internal server error"})
@@ -65,10 +77,11 @@ export async function loginuser(req,res){
 }
 
 //Get Current User
-
 export async function getCurrentUser(req,res){
     try{
-        const user=await User.findOne({email}).select("name password")
+        // FIX: Use req.user.id from auth middleware, do NOT use undefined 'email'
+        // Also do NOT return password
+        const user=await User.findById(req.user.id).select("name email");
         if(!user)
             return res.status(404).json({success:false,message:"User not found"})
         res.json({success:true,user})

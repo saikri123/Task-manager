@@ -1,82 +1,106 @@
-    import React, { useState, useRef } from 'react'
-    import {useNavigate} from 'react-router-dom'
-    import { ChevronDown, Settings, Zap,LogOut } from 'lucide-react';
-    
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, ChevronDown, LogOut } from 'lucide-react';
 
-    export const Navbar = ({ user={}, onLogout }) => {
-        const navigate=useNavigate()
-        const menuref=useRef(null)
-        const [menuOpen, setMenuOpen] = useState(false)
+const Navbar = ({ user, onLogout }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef  = useRef(null);
+  const navigate = useNavigate();
 
-        const handleMenuToggle = () => {
-            setMenuOpen((prev) => !prev)
-        }
-        const handleLogout=()=>{
-            setMenuOpen(false)
-            onLogout()
-        }
+  const handleMenuToggle = () => setMenuOpen((prev) => !prev);
 
-    return (
-        <header className='sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200 font-sans' >
-            <div className='flex items-center justify-between px-4 py-3 md:px-6 max-w-7xl mx-auto'>
-                <div className='flex items-center  gap-2 cursor-pointer group '
-                onClick={()=> navigate('/')}>
-                    <div className='relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 via-rose-500 to-amber-500 shadow-lg group-hover:scale-105 transition-all duration-300'>
-                        <Zap className='w-6 h-6 text-white'/>
-                        <div className='absolute -bottom-1 -right-1 w-3 h-3 bg-white rounded-full shadow-md animate-ping '/>
-                    </div>
-                    <span className='text-2xl font-extrabold bg-gradient-to-br from-orange-400 via-rose-500 to-amber-500 bg-clip-text text-transparent tracking-wide'>Task Flow</span>
+  const handleLogout = () => {
+    setMenuOpen(false);
+    onLogout();
+    navigate('/login', { replace: true });
+  };
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const userInitial = user?.name?.charAt(0).toUpperCase() || 'U';
+
+  return (
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 font-sans">
+      <div className="flex items-center justify-between px-4 py-3 md:px-6 max-w-7xl mx-auto">
+
+        {/* Logo */}
+        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
+          <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 via-indigo-500 to-violet-500 shadow-lg group-hover:shadow-sky-300/50 group-hover:scale-105 transition duration-300">
+            <span className="text-white text-xl font-bold">TF</span>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white rounded-full shadow-md animate-pulse"></div>
+          </div>
+          <span className="text-2xl font-extrabold bg-gradient-to-r from-sky-500 to-indigo-500 bg-clip-text text-transparent tracking-wide">
+            Task Flow
+          </span>
+        </div>
+
+        {/* Right Side */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/profile')}
+            className="p-2 text-slate-500 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-all duration-300"
+            aria-label="Profile Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+
+          {/* User Dropdown */}
+          <div ref={menuRef} className="relative">
+            <button
+              onClick={handleMenuToggle}
+              className="flex items-center gap-3 px-3 py-1.5 rounded-full cursor-pointer hover:bg-sky-50 border border-transparent hover:border-sky-100 transition duration-300"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+            >
+              <div className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 text-white font-bold shadow-sm">
+                {userInitial}
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-bold text-slate-800 leading-tight">{user?.name || 'User'}</p>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">{user?.email || 'No Email'}</p>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${menuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-50 md:hidden">
+                  <p className="text-sm font-bold text-slate-800">{user?.name}</p>
+                  <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                 </div>
-                <div className='flex items-center gap-4 '>
-                    <button className='p-2 text-gray-600 hover:text-orange-500 transition-colors duration-300 hover:bg-orange-50 rounded-full'
-                    onClick={()=>navigate('/profile')}>
-                    <Settings className='w-5 h-5'/>
+                <ul className="py-1">
+                  <li>
+                    <button
+                      onClick={() => { setMenuOpen(false); navigate('/profile'); }}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 text-sm hover:bg-sky-50 transition-colors"
+                    >
+                      <Settings className="w-4 h-4 text-sky-500" />
+                      Profile Settings
                     </button>
-                    {/* User Dropdown */}
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-left text-rose-600 text-sm hover:bg-rose-50 transition-colors border-t border-slate-50"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
 
-                    <div ref={menuref} className='relative'>
-                        <button onClick={handleMenuToggle} className=' flex items-center gap-2 px-3 py-2 rounded-full cursor-pointer hover:bg-orange-100  transition-colors duration-300  border border-transparent '>
-                            <div className='relative'>
-                                {user.avatar?(<img src={user.avatar} alt ="Avatar" className='w-9 h-9 rounded-full shadow-sm'/>):
-                                (<div className='w-8 h-8 flex-items-center justify-center rounded-full bg-gradient-to-br from-orange-400 via-rose-500 to-amber-500 font-semibold shadow-md'>
-                                    {user.name?.[0]?.toUpperCase() || 'U'}
-                                </div>)}
-                                <div className='absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse '/>
-                            </div>
-                            <div className='text-left hidden md:block '>
-                                <p className='text-sm font-medium text-gray-800 '>{user.name}</p>
-                                <p className='text-xs font-medium text-gray-500 font-normal'>{user.email}</p>
-                            </div>
-                            <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform duration-300 ${menuOpen ? 'rotate-180' : ''}`}/>
-                        </button>
-                        {menuOpen &&(
-                            <ul className='absolute top-14 right-0 w-56  bg-white rounded-2xl shadow-xl border-orange-100 z-50 overflow-hidden animate-fadeIn'>
-                                <li className='p-2 '>
-                                    <button onClick={()=>{
-                                        setMenuOpen(false)
-                                        navigate('/profile')
-
-                                    }}
-                                    className='w-full px-4 py-2.5  hover:bg-orange-50 text-sm text-gray-700  transition-colors duration-300 flex items-center gap-2 group' role='menuitem'>
-                                        <Settings className='w-4 h-4 text-gray-700'/>   
-                                        Profile Setting 
-                                    </button>
-                                </li>
-                                <li className='p-2 '>
-                                    <button onClick={handleLogout} className='flex w-full items-center gap-2 rounded-lg px-3  py-2 text-sm hover:bg-red-50 text-red-600   '>
-                                        <LogOut className='w-4 h-4'/>
-                                        Logout  
-                                    </button>
-                                </li>
-                            </ul>
-                        )}
-                    </div>
-                </div>
-
-            </div>
-        </header>
-    )
-    }
-    export default Navbar
-
+export default Navbar;

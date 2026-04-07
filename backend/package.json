@@ -5,7 +5,7 @@
  "description": "Backend code",
  "main": "server.js",
  "scripts": {
-  "start": "nodemon sclearerver.js"
+  "start": "nodemon server.js"
  },
  "author": "",
  "license": "ISC",

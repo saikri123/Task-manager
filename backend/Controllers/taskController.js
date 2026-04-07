@@ -5,12 +5,14 @@ export const createTask= async(req,res)=>{
     const { title, description, priority, dueDate, completed  } = req.body;
 
     try {
+        // Normalize completed to boolean (handle 'yes', 'Yes', true, etc.)
+        const isCompleted = completed === 'Yes' || completed === 'yes' || completed === true;
         const newTask = new Task({
             title,
             description,
             priority,
             dueDate,
-            completed:completed==='Yes' || completed === true,
+            completed: isCompleted,
             owner:req.user.id
         });
 
@@ -48,7 +50,8 @@ export const updateTask= async (req,res)=>{
     try{
         const data ={...req.body}
         if(data.completed !== undefined){
-            data.completed = data.completed === 'Yes' || data.completed === true;
+            // Normalize completed to boolean
+            data.completed = data.completed === 'Yes' || data.completed === 'yes' || data.completed === true;
         }
         const updated = await Task.findOneAndUpdate(
             {_id:req.params.id,owner:req.user.id},
